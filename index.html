@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rose Day Promise</title>
+    <title>For You</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body, html { 
             height: 100%; width: 100%; overflow: hidden; 
@@ -14,37 +14,48 @@
             font-family: 'Georgia', serif;
         }
 
-        /* 1. The Main Rose (Static & Elegant) */
+        /* 1. The Main Rose - Guaranteed to show */
         .rose-container {
             text-align: center;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 2.5s ease forwards;
             z-index: 10;
         }
 
         .main-rose {
-            font-size: 120px;
-            filter: drop-shadow(0 0 20px rgba(230, 57, 70, 0.4));
-            margin-bottom: 20px;
+            font-size: 100px;
+            filter: drop-shadow(0 0 20px rgba(230, 57, 70, 0.6));
+            animation: breathe 4s ease-in-out infinite;
         }
 
-        @keyframes fadeIn {
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
-        /* 2. The Poetic Text */
+        /* 2. Falling Petals - Auto-starting */
+        .petal {
+            position: fixed;
+            top: -10%;
+            pointer-events: none;
+            z-index: 5;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(720deg); }
+        }
+
+        /* 3. The Poetic Text */
         .message-text {
+            margin-top: 20px;
             color: #d1d9e6;
             text-align: center;
             padding: 0 20px;
         }
 
         .poetic-line {
-            font-size: 22px;
+            font-size: 20px;
             font-style: italic;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+            margin-bottom: 8px;
         }
 
         .sub-line {
@@ -52,83 +63,48 @@
             color: #e63946;
             letter-spacing: 4px;
             text-transform: uppercase;
-            font-weight: bold;
         }
 
-        /* 3. The Small Gift Box (The Promise) */
+        /* 4. The Mini Gift Box */
         .gift-box-wrapper {
             position: absolute;
-            bottom: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            bottom: 30px;
+            text-align: center;
             z-index: 20;
         }
 
         .mini-box {
             font-size: 40px;
             cursor: pointer;
-            transition: transform 0.3s ease;
-            filter: drop-shadow(0 0 10px rgba(255,183,197,0.3));
+            -webkit-tap-highlight-color: transparent;
         }
-
-        .mini-box:active { transform: scale(0.9); }
 
         .promise-popup {
             position: absolute;
             bottom: 60px;
-            background: rgba(255, 255, 255, 0.1);
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
             padding: 15px;
             border-radius: 12px;
-            width: 250px;
+            width: 260px;
             font-size: 14px;
-            line-height: 1.5;
             text-align: center;
             opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.5s ease;
+            transition: all 0.4s ease;
             pointer-events: none;
         }
 
         .promise-popup.show {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(0);
         }
-
-        .hint {
-            margin-top: 8px;
-            font-size: 10px;
-            color: #8e9aaf;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        /* Twinkling Stars */
-        .star {
-            position: absolute; background: white; border-radius: 50%;
-            opacity: 0.3; animation: twinkle 3s infinite;
-        }
-        @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.6; } }
-
     </style>
 </head>
 <body>
-
-    <script>
-        for (let i = 0; i < 40; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.width = Math.random() * 2 + 'px';
-            star.style.height = star.style.width;
-            star.style.left = Math.random() * 100 + 'vw';
-            star.style.top = Math.random() * 100 + 'vh';
-            star.style.animationDelay = Math.random() * 3 + 's';
-            document.body.appendChild(star);
-        }
-    </script>
 
     <div class="rose-container">
         <div class="main-rose">🌹</div>
@@ -143,18 +119,33 @@
             "A rose represents my admiration, but this box holds my promise: No matter the distance or the silence, I will always be here, waiting and hoping for us."
         </div>
         <div class="mini-box" onclick="togglePromise()">🎁</div>
-        <p class="hint">A small promise for you</p>
+        <p style="color: #8e9aaf; font-size: 10px; margin-top: 5px; letter-spacing: 1px;">A SMALL PROMISE</p>
     </div>
 
     <script>
+        // Start petals automatically
+        function createPetals() {
+            const colors = ['#8b0000', '#ff2d55', '#ffd1dc'];
+            setInterval(() => {
+                const p = document.createElement('div');
+                p.innerHTML = '🌸';
+                p.className = 'petal';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.color = colors[Math.floor(Math.random() * colors.length)];
+                p.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                p.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 7000);
+            }, 300);
+        }
+
         function togglePromise() {
             const popup = document.getElementById('promiseBox');
             popup.classList.toggle('show');
-            
-            if (navigator.vibrate) {
-                navigator.vibrate(50); // Soft haptic pulse
-            }
+            if (navigator.vibrate) navigator.vibrate(50);
         }
+
+        window.onload = createPetals;
     </script>
 </body>
 </html>
