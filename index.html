@@ -3,146 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3D Rose Experience</title>
+    <title>Rose Day Promise</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body, html { 
             height: 100%; width: 100%; overflow: hidden; 
-            background: #05070a;
-            display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle at center, #1b2735 0%, #05070a 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             font-family: 'Georgia', serif;
-            perspective: 2000px;
         }
 
-        /* Ambient Glow */
-        .aura {
-            position: absolute; width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(230, 57, 70, 0.05) 0%, transparent 70%);
-            z-index: 1; pointer-events: none;
+        /* 1. The Main Rose (Static & Elegant) */
+        .rose-container {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 2.5s ease forwards;
+            z-index: 10;
         }
 
-        /* 1. The 3D Rose - High Fidelity */
-        .rose-3d {
-            position: absolute; transform-style: preserve-3d;
-            transform: rotateX(-15deg) rotateY(0deg) scale(0);
-            opacity: 0; transition: all 5s cubic-bezier(0.22, 1, 0.36, 1);
-            z-index: 100; margin-top: -80px;
+        .main-rose {
+            font-size: 120px;
+            filter: drop-shadow(0 0 20px rgba(230, 57, 70, 0.4));
+            margin-bottom: 20px;
         }
 
-        .petal-3d {
-            position: absolute; top: 0; left: 0;
-            width: 90px; height: 110px;
-            background: radial-gradient(circle at 50% 10%, #ff2d55 0%, #660000 100%);
-            border-radius: 50% 50% 30% 30%;
-            transform-origin: bottom center;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
-            border: 0.5px solid rgba(255,255,255,0.05);
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 2. The Stem */
-        .stem {
-            position: absolute; width: 4px; height: 200px;
-            background: linear-gradient(to bottom, #113322, #051a11);
-            bottom: -160px; left: 43px; transform-style: preserve-3d;
+        /* 2. The Poetic Text */
+        .message-text {
+            color: #d1d9e6;
+            text-align: center;
+            padding: 0 20px;
         }
 
-        .leaf {
-            position: absolute; width: 35px; height: 55px;
-            background: linear-gradient(45deg, #113322, #1b4d3e);
-            border-radius: 0 100% 0 100%; transform-origin: bottom left;
+        .poetic-line {
+            font-size: 22px;
+            font-style: italic;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
         }
 
-        /* 3. High-End Animations */
-        @keyframes vortex {
-            0% { transform: translateY(-100vh) rotateX(0deg) rotateY(0deg) scale(1); opacity: 0; }
-            30% { opacity: 1; }
-            100% { transform: translateY(0) rotateX(720deg) rotateY(720deg) scale(0); opacity: 0; }
+        .sub-line {
+            font-size: 12px;
+            color: #e63946;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-weight: bold;
         }
 
-        @keyframes cinematicSpin {
-            from { transform: rotateX(-15deg) rotateY(0deg); }
-            to { transform: rotateX(-15deg) rotateY(360deg); }
+        /* 3. The Small Gift Box (The Promise) */
+        .gift-box-wrapper {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 20;
         }
 
-        .spinning { animation: cinematicSpin 20s linear infinite; }
-
-        /* Trigger UI */
-        #trigger { 
-            font-size: 80px; cursor: pointer; z-index: 200;
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.1));
-            transition: transform 0.3s ease, opacity 1s ease;
+        .mini-box {
+            font-size: 40px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            filter: drop-shadow(0 0 10px rgba(255,183,197,0.3));
         }
 
-        #reveal { 
-            position: absolute; bottom: 10%; width: 100%; text-align: center;
-            opacity: 0; transition: opacity 4s ease; z-index: 200;
+        .mini-box:active { transform: scale(0.9); }
+
+        .promise-popup {
+            position: absolute;
+            bottom: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            width: 250px;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+            pointer-events: none;
         }
+
+        .promise-popup.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hint {
+            margin-top: 8px;
+            font-size: 10px;
+            color: #8e9aaf;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Twinkling Stars */
+        .star {
+            position: absolute; background: white; border-radius: 50%;
+            opacity: 0.3; animation: twinkle 3s infinite;
+        }
+        @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.6; } }
+
     </style>
 </head>
 <body>
 
-    <div class="aura"></div>
-    <div id="trigger" onclick="ignite()">🌹</div>
+    <script>
+        for (let i = 0; i < 40; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 2 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            document.body.appendChild(star);
+        }
+    </script>
 
-    <div class="rose-3d" id="rose">
-        <div class="stem">
-            <div class="leaf" style="left:4px; top:40px; transform: rotateY(45deg) rotateZ(-20deg);"></div>
-            <div class="leaf" style="left:-30px; top:90px; transform: rotateY(-45deg) rotateZ(20deg) scaleX(-1);"></div>
+    <div class="rose-container">
+        <div class="main-rose">🌹</div>
+        <div class="message-text">
+            <p class="poetic-line">"In every silence, I’m thinking of you."</p>
+            <p class="sub-line">Happy Rose Day</p>
         </div>
-        <div class="petal-3d" style="width:50px; height:70px; left:20px; bottom:50px; transform: rotateY(0deg) rotateX(20deg);"></div>
-        <div class="petal-3d" style="width:50px; height:70px; left:20px; bottom:50px; transform: rotateY(120deg) rotateX(20deg);"></div>
-        <div class="petal-3d" style="width:50px; height:70px; left:20px; bottom:50px; transform: rotateY(240deg) rotateX(20deg);"></div>
-        <div class="petal-3d" style="width:75px; height:95px; left:7px; bottom:50px; transform: rotateY(60deg) rotateX(40deg);"></div>
-        <div class="petal-3d" style="width:75px; height:95px; left:7px; bottom:50px; transform: rotateY(180deg) rotateX(40deg);"></div>
-        <div class="petal-3d" style="width:75px; height:95px; left:7px; bottom:50px; transform: rotateY(300deg) rotateX(40deg);"></div>
-        <div class="petal-3d" style="transform: rotateY(0deg) rotateX(65deg);"></div>
-        <div class="petal-3d" style="transform: rotateY(90deg) rotateX(65deg);"></div>
-        <div class="petal-3d" style="transform: rotateY(180deg) rotateX(65deg);"></div>
-        <div class="petal-3d" style="transform: rotateY(270deg) rotateX(65deg);"></div>
     </div>
 
-    <div id="reveal">
-        <p style="font-size: 22px; color: #d1d9e6; margin-bottom: 8px; font-style: italic; letter-spacing: 1px;">
-            "In every silence, I’m thinking of you."
-        </p>
-        <p style="font-size: 12px; color: #e63946; letter-spacing: 5px; font-weight: bold; text-transform: uppercase;">
-            Happy Rose Day
-        </p>
+    <div class="gift-box-wrapper">
+        <div class="promise-popup" id="promiseBox">
+            "A rose represents my admiration, but this box holds my promise: No matter the distance or the silence, I will always be here, waiting and hoping for us."
+        </div>
+        <div class="mini-box" onclick="togglePromise()">🎁</div>
+        <p class="hint">A small promise for you</p>
     </div>
 
     <script>
-        function ignite() {
-            if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
+        function togglePromise() {
+            const popup = document.getElementById('promiseBox');
+            popup.classList.toggle('show');
             
-            document.getElementById('trigger').style.opacity = '0';
-            document.getElementById('trigger').style.pointerEvents = 'none';
-
-            // Particle Vortex System
-            for (let i = 0; i < 80; i++) {
-                setTimeout(() => {
-                    const p = document.createElement('div');
-                    p.innerHTML = '✨';
-                    p.style.position = 'fixed';
-                    p.style.color = i % 2 === 0 ? '#ff2d55' : '#ffd1dc';
-                    p.style.left = Math.random() * 100 + 'vw';
-                    p.style.zIndex = '50';
-                    p.style.animation = `vortex ${2 + Math.random() * 2}s ease-in forwards`;
-                    document.body.appendChild(p);
-                    setTimeout(() => p.remove(), 4000);
-                }, i * 40);
+            if (navigator.vibrate) {
+                navigator.vibrate(50); // Soft haptic pulse
             }
-
-            // The Reveal
-            setTimeout(() => {
-                const rose = document.getElementById('rose');
-                rose.style.opacity = '1';
-                rose.style.transform = 'rotateX(-15deg) rotateY(0deg) scale(1)';
-                rose.classList.add('spinning');
-                document.getElementById('reveal').style.opacity = '1';
-                document.body.style.transition = 'background 6s ease';
-                document.body.style.background = 'radial-gradient(circle at center, #0a111a 0%, #020305 100%)';
-            }, 3500);
         }
     </script>
 </body>
