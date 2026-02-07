@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>A Gift for You</title>
+    <title>3D Rose for You</title>
     <style>
-        /* 1. Reset & Background */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body, html { 
@@ -13,106 +12,137 @@
             background: radial-gradient(circle at center, #1b2735 0%, #05070a 100%);
             display: flex; justify-content: center; align-items: center;
             font-family: 'Georgia', serif;
-            perspective: 1000px; /* Essential for 3D */
+            perspective: 1500px;
         }
 
-        /* 2. 3D Gift Box Styling */
-        .box-container {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            cursor: pointer;
-            z-index: 200;
-            transition: all 0.8s ease;
-        }
-
-        .box-body {
+        /* 1. The 3D Rose Container */
+        .rose-3d {
             position: absolute;
-            width: 100%; height: 100%;
-            background: #e63946;
-            border-radius: 8px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
-        }
-
-        /* Ribbon */
-        .box-body::after, .box-body::before {
-            content: ''; position: absolute; background: #ffb7c5;
-        }
-        .box-body::after { width: 20px; height: 100%; left: 50%; transform: translateX(-50%); }
-        .box-body::before { width: 100%; height: 20px; top: 50%; transform: translateY(-50%); }
-
-        .box-lid {
-            position: absolute;
-            width: 110%; height: 40px;
-            background: #d62839;
-            top: -20px; left: -5%;
-            border-radius: 5px;
-            z-index: 210;
-            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-
-        /* 3. Opening Animation Classes */
-        .box-container.open .box-lid {
-            transform: translateY(-150px) rotateX(45deg);
+            width: 100px; height: 100px;
+            transform-style: preserve-3d;
+            transform: rotateX(-20deg) rotateY(0deg) scale(0);
             opacity: 0;
-        }
-        .box-container.open {
-            transform: scale(0);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* 4. Rose & Stars (Hidden until open) */
-        #final-rose { 
-            position: absolute; top: 50%; left: 50%; 
-            transform: translate(-50%, -50%) scale(0);
-            font-size: 150px; opacity: 0; 
             transition: all 4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            filter: drop-shadow(0 0 30px rgba(230, 57, 70, 0.4));
             z-index: 100;
+            margin-top: -100px; /* Offset to make room for stem */
         }
 
-        .petal { position: fixed; pointer-events: none; z-index: 50; }
+        /* The Petals - Layered for depth */
+        .petal-3d {
+            position: absolute;
+            top: 0; left: 0;
+            width: 80px; height: 100px;
+            background: radial-gradient(circle at center, #ff2d55 10%, #8b0000 100%);
+            border-radius: 50% 50% 20% 20%;
+            transform-origin: bottom center;
+            opacity: 0.95;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
 
-        #reveal-text { 
-            position: absolute; bottom: 15%; width: 100%; text-align: center;
+        .layer-1 { height: 70px; width: 50px; bottom: 50px; left: 25px; }
+        .layer-2 { height: 90px; width: 70px; bottom: 50px; left: 15px; }
+        .layer-3 { height: 110px; width: 90px; bottom: 50px; left: 5px; }
+
+        /* 2. The 3D Stem & Leaves */
+        .stem-3d {
+            position: absolute;
+            width: 4px; height: 180px;
+            background: linear-gradient(to bottom, #1b4d3e, #0a2d22);
+            bottom: -150px; left: 48px;
+            transform-style: preserve-3d;
+            transform: rotateX(0deg);
+        }
+
+        .leaf {
+            position: absolute;
+            width: 30px; height: 50px;
+            background: radial-gradient(circle at center, #2d5a27, #1b4d3e);
+            border-radius: 0 100% 0 100%;
+            transform-origin: bottom left;
+        }
+
+        /* Spinning Animation */
+        @keyframes spin {
+            from { transform: rotateX(-20deg) rotateY(0deg); }
+            to { transform: rotateX(-20deg) rotateY(360deg); }
+        }
+        .spinning { animation: spin 12s linear infinite; }
+
+        /* Trigger & Text */
+        #rose-trigger { 
+            font-size: 70px; cursor: pointer; z-index: 200;
+            transition: transform 0.2s ease, opacity 1s ease;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
+        }
+
+        #reveal { 
+            position: absolute; bottom: 10%; width: 100%; text-align: center;
             opacity: 0; transition: opacity 3s ease 2s;
-            color: #d1d9e6;
+            z-index: 200;
         }
 
-        .star {
-            position: absolute; background: white; border-radius: 50%;
-            opacity: 0; animation: twinkle 3s infinite;
-        }
-        @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.8; } }
-
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0; }
     </style>
 </head>
 <body>
 
-    <div class="box-container" id="giftBox" onclick="openBox()">
-        <div class="box-lid"></div>
-        <div class="box-body"></div>
-        <p style="color: white; position: absolute; bottom: -40px; width: 100%; text-align: center; font-size: 14px; letter-spacing: 1px;">TAP TO OPEN</p>
+    <div id="rose-trigger" onclick="start()">🌹</div>
+
+    <div class="rose-3d" id="finalRose">
+        <div class="stem-3d">
+            <div class="leaf" style="left: 4px; top: 40px; transform: rotateY(45deg) rotateZ(-30deg);"></div>
+            <div class="leaf" style="left: -30px; top: 80px; transform: rotateY(-45deg) rotateZ(30deg) scaleX(-1);"></div>
+        </div>
+
+        <div class="petal-3d layer-1" style="transform: rotateY(0deg) rotateX(25deg);"></div>
+        <div class="petal-3d layer-1" style="transform: rotateY(120deg) rotateX(25deg);"></div>
+        <div class="petal-3d layer-1" style="transform: rotateY(240deg) rotateX(25deg);"></div>
+        
+        <div class="petal-3d layer-2" style="transform: rotateY(60deg) rotateX(45deg);"></div>
+        <div class="petal-3d layer-2" style="transform: rotateY(180deg) rotateX(45deg);"></div>
+        <div class="petal-3d layer-2" style="transform: rotateY(300deg) rotateX(45deg);"></div>
+        
+        <div class="petal-3d layer-3" style="transform: rotateY(30deg) rotateX(65deg);"></div>
+        <div class="petal-3d layer-3" style="transform: rotateY(120deg) rotateX(65deg);"></div>
+        <div class="petal-3d layer-3" style="transform: rotateY(210deg) rotateX(65deg);"></div>
+        <div class="petal-3d layer-3" style="transform: rotateY(300deg) rotateX(65deg);"></div>
     </div>
 
-    <div id="final-rose">🌹</div>
-
-    <div id="reveal-text">
-        <p style="font-size: 20px; font-style: italic; margin-bottom: 10px;">"In every silence, I’m thinking of you."</p>
-        <p style="font-size: 12px; color: #e63946; letter-spacing: 4px;">HAPPY ROSE DAY</p>
+    <div id="reveal">
+        <p style="font-size: 22px; color: #d1d9e6; margin-bottom: 12px; font-style: italic;">
+            "In every silence, I’m thinking of you."
+        </p>
+        <p style="font-size: 13px; color: #e63946; letter-spacing: 4px; font-weight: bold;">HAPPY ROSE DAY 🌹</p>
     </div>
 
     <script>
-        function openBox() {
-            // Haptic Feedback
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        function start() {
+            if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
 
-            // Trigger Box Animation
-            document.getElementById('giftBox').classList.add('open');
+            document.getElementById('rose-trigger').style.opacity = '0';
 
-            // 1. Create Stars
+            // Petal Storm
+            const colors = ['#8b0000', '#ff2d55', '#ffd1dc'];
             for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const p = document.createElement('div');
+                    p.innerHTML = '🌸';
+                    p.style.position = 'fixed';
+                    p.style.top = '-10%';
+                    p.style.left = Math.random() * 100 + 'vw';
+                    p.style.color = colors[i % 3];
+                    p.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                    document.body.appendChild(p);
+                    p.animate([
+                        { top: '-10%', transform: 'rotate(0deg)' },
+                        { top: '50%', left: '50%', transform: 'scale(0) rotate(720deg)' }
+                    ], { duration: 4000, easing: 'ease-in-out', fill: 'forwards' });
+                    setTimeout(() => p.remove(), 4500);
+                }, i * 70);
+            }
+
+            // Stars
+            for (let i = 0; i < 40; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.width = Math.random() * 2 + 'px';
@@ -120,33 +150,18 @@
                 star.style.left = Math.random() * 100 + 'vw';
                 star.style.top = Math.random() * 100 + 'vh';
                 document.body.appendChild(star);
-                setTimeout(() => star.style.opacity = '0.6', 1000);
+                setTimeout(() => star.style.opacity = '0.5', 4000);
             }
 
-            // 2. Petal Storm
-            const colors = ['#8b0000', '#e63946', '#ffd1dc', '#c0c0c0'];
-            for (let i = 0; i < 60; i++) {
-                setTimeout(() => {
-                    const p = document.createElement('div');
-                    p.innerHTML = '🌸'; p.className = 'petal';
-                    p.style.color = colors[i % 4];
-                    p.style.left = Math.random() * 100 + 'vw';
-                    p.style.fontSize = (Math.random() * 15 + 15) + 'px';
-                    document.body.appendChild(p);
-                    p.animate([
-                        { top: '-10%', transform: 'rotate(0deg)' },
-                        { top: '50%', left: '50%', transform: 'scale(0) rotate(720deg)' }
-                    ], { duration: 4000, easing: 'ease-in-out', fill: 'forwards' });
-                }, i * 80);
-            }
-
-            // 3. Final Reveal
+            // Reveal Rose
             setTimeout(() => {
-                const fr = document.getElementById('final-rose');
-                fr.style.opacity = '1';
-                fr.style.transform = 'translate(-50%, -50%) scale(1)';
-                document.getElementById('reveal-text').style.opacity = '1';
-            }, 3500);
+                const rose = document.getElementById('finalRose');
+                rose.style.opacity = '1';
+                rose.style.transform = 'rotateX(-20deg) rotateY(0deg) scale(1)';
+                rose.classList.add('spinning');
+                document.getElementById('reveal').style.opacity = '1';
+                document.body.style.background = '#05070a';
+            }, 5000);
         }
     </script>
 </body>
