@@ -4,132 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>For You</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body, html {
-            height: 100%; width: 100%; overflow: hidden;
-            background: linear-gradient(180deg, #fff5f6 0%, #ffdee1 100%);
-            display: flex; justify-content: center; align-items: center;
-            font-family: 'Playfair Display', serif;
-        }
-
-        /* Silk texture */
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://www.transparenttextures.com/patterns/silk.png');
-            opacity: 0.3; pointer-events: none;
-        }
-
-        #rose-trigger {
-            font-size: 60px; cursor: pointer; z-index: 100;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: drop-shadow(0 0 10px rgba(230, 57, 70, 0.2));
-            user-select: none;
-        }
         
-        #rose-trigger:active { transform: scale(0.8); }
-
-        .hint-text {
-            position: absolute; width: 100%; text-align: center;
-            top: 60%; font-size: 18px; color: #d68a8e;
-            letter-spacing: 2px; opacity: 0.8;
+        body, html { 
+            height: 100%; width: 100%; overflow: hidden; 
+            /* Midnight Blue to Charcoal Gradient */
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Georgia', serif;
+            transition: background 5s ease;
         }
 
-        .petal { position: fixed; top: -10%; pointer-events: none; z-index: 5; }
+        /* Moonlight Glow */
+        .moonlight {
+            position: absolute;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 1;
+        }
 
-        #final-rose {
-            position: absolute; top: 50%; left: 50%;
+        #rose-trigger { 
+            font-size: 70px; cursor: pointer; z-index: 100;
+            transition: transform 0.2s ease, opacity 1s ease;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
+        }
+
+        .hint { 
+            position: absolute; width: 100%; text-align: center;
+            top: 65%; font-size: 16px; color: #8e9aaf; 
+            letter-spacing: 3px; text-transform: uppercase;
+            animation: pulse 3s infinite;
+            z-index: 100;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Petal Layers for 3D depth */
+        .petal { position: fixed; pointer-events: none; }
+        .front { z-index: 150; } /* In front of rose */
+        .back { z-index: 50; }   /* Behind rose */
+
+        #final-rose { 
+            position: absolute; top: 50%; left: 50%; 
             transform: translate(-50%, -50%) scale(0);
-            font-size: 140px; opacity: 0;
+            font-size: 160px; opacity: 0; 
             transition: all 4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            filter: drop-shadow(0 0 30px rgba(230, 57, 70, 0.3));
+            z-index: 100;
+            filter: drop-shadow(0 0 30px rgba(230, 57, 70, 0.4));
         }
 
         .breathe { animation: breathe 5s ease-in-out infinite; }
         @keyframes breathe {
             0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.08); }
+            50% { transform: translate(-50%, -50%) scale(1.04); }
         }
 
-        #reveal-text {
+        #reveal { 
             position: absolute; bottom: 15%; width: 100%; text-align: center;
-            opacity: 0; transition: opacity 2.5s ease 2s;
+            opacity: 0; transition: opacity 3s ease 2s;
+            z-index: 100;
+        }
+
+        /* Starry background effect */
+        .star {
+            position: absolute; background: white; border-radius: 50%;
+            opacity: 0; animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.8; }
         }
     </style>
 </head>
 <body>
 
-    <div id="rose-trigger">🌹</div>
-    <div class="hint-text" id="hint">Tap gently.</div>
+    <div class="moonlight"></div>
+    <div id="rose-trigger" onclick="start()">🌹</div>
+    <div class="hint" id="hint">Tap gently</div>
     <div id="final-rose">🌹</div>
 
-    <div id="reveal-text">
-        <p style="font-size: 26px; color: #4a4a4a; margin-bottom: 8px;">For you. Always.</p>
-        <p style="font-size: 14px; color: #e63946; letter-spacing: 2px; text-transform: uppercase;">Happy Rose Day 🌹</p>
+    <div id="reveal">
+        <p style="font-size: 22px; color: #d1d9e6; margin-bottom: 12px; font-style: italic;">
+            "In every silence, I’m thinking of you."
+        </p>
+        <p style="font-size: 13px; color: #e63946; letter-spacing: 4px; font-weight: bold;">HAPPY ROSE DAY</p>
     </div>
 
     <script>
-        const trigger = document.getElementById('rose-trigger');
-        
-        // Using 'touchstart' for the fastest response on mobile browsers
-        trigger.addEventListener('touchstart', function(e) {
-            startExperience();
-        }, { once: true });
+        function start() {
+            if (navigator.vibrate) navigator.vibrate(50);
 
-        // Fallback for desktop Chrome
-        trigger.addEventListener('click', function(e) {
-            startExperience();
-        }, { once: true });
+            document.getElementById('rose-trigger').style.opacity = '0';
+            document.getElementById('hint').style.display = 'none';
 
-        function startExperience() {
-            // THE HAPTIC: 
-            // 1. Android/Chrome: Works immediately.
-            // 2. iOS/Safari: If she has "Haptics" enabled in system settings, this triggers.
-            if ("vibrate" in navigator) {
-                navigator.vibrate(60); 
+            // Velvet reds and silver pinks
+            const colors = ['#8b0000', '#e63946', '#ffd1dc', '#c0c0c0'];
+            
+            for (let i = 0; i < 70; i++) {
+                setTimeout(() => {
+                    const p = document.createElement('div');
+                    p.innerHTML = '🌸'; 
+                    // Randomly assign to front or back layer
+                    p.className = `petal ${Math.random() > 0.5 ? 'front' : 'back'}`;
+                    p.style.color = colors[i % 4];
+                    p.style.left = Math.random() * 100 + 'vw';
+                    p.style.fontSize = (Math.random() * 15 + 10) + 'px';
+                    p.style.opacity = Math.random() * 0.5 + 0.5;
+                    document.body.appendChild(p);
+
+                    p.animate([
+                        { top: '-10%', transform: `rotate(0deg) scale(${Math.random() + 0.5})` },
+                        { top: '50%', left: '50%', transform: 'scale(0) rotate(900deg)' }
+                    ], { 
+                        duration: 5000, 
+                        easing: 'ease-in-out',
+                        fill: 'forwards' 
+                    });
+                    
+                    setTimeout(() => p.remove(), 5500);
+                }, i * 70);
             }
 
-            trigger.style.opacity = '0';
-            document.getElementById('hint').style.opacity = '0';
-
-            const petalColors = ['#ffb7c5', '#e63946', '#fb6f92', '#ff8fa3'];
+            // Create Stars during transition
             for (let i = 0; i < 50; i++) {
-                setTimeout(() => createPetal(petalColors[i % 4]), i * 100);
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 2 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + 'vw';
+                star.style.top = Math.random() * 100 + 'vh';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                document.body.appendChild(star);
+                setTimeout(() => star.style.opacity = '0.5', 4000);
             }
 
             setTimeout(() => {
                 const fr = document.getElementById('final-rose');
-                fr.style.opacity = '1';
+                fr.style.opacity = '1'; 
                 fr.style.transform = 'translate(-50%, -50%) scale(1)';
                 fr.classList.add('breathe');
-                document.getElementById('reveal-text').style.opacity = '1';
-                document.body.style.background = '#ffdee1';
-            }, 4500);
-        }
-
-        function createPetal(color) {
-            const petal = document.createElement('div');
-            petal.innerHTML = '🌸'; 
-            petal.className = 'petal';
-            petal.style.color = color;
-            petal.style.left = Math.random() * 100 + 'vw';
-            petal.style.fontSize = (Math.random() * 20 + 15) + 'px';
-            document.body.appendChild(petal);
-
-            petal.animate([
-                { top: '-10%', transform: `rotate(0deg) translateX(0)` },
-                { top: '50%', left: '50%', transform: 'scale(0) rotate(720deg)' }
-            ], {
-                duration: 4000,
-                easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
-                fill: 'forwards'
-            });
-
-            setTimeout(() => petal.remove(), 4000);
+                document.getElementById('reveal').style.opacity = '1';
+                // Deepen the background to midnight
+                document.body.style.background = '#05070a';
+            }, 5000);
         }
     </script>
 </body>
 </html>
-
